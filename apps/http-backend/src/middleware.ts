@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 export const authentication = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const header = req.headers.authorization;
