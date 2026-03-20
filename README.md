@@ -1,4 +1,4 @@
-# Collaborative Excalidraw
+# SKETCHIFY
 
 A real-time collaborative drawing application built with a monorepo architecture using Turborepo.
 
