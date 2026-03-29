@@ -18,6 +18,7 @@ This monorepo contains a full-stack collaborative drawing application with the f
 
 - `@repo/ui`: Shared React component library used across applications
 - `@repo/common`: Shared types and validation schemas using Zod
+- `@repo/db`: Database package using [Drizzle ORM](https://orm.drizzle.team/) with PostgreSQL (schema, relations, and client)
 - `@repo/backend-common`: Shared backend utilities and configuration
 - `@repo/eslint-config`: ESLint configurations (includes `eslint-config-next` and `eslint-config-prettier`)
 - `@repo/typescript-config`: Shared TypeScript configurations
@@ -32,6 +33,8 @@ This Turborepo has the following tools setup:
 - [ESLint](https://eslint.org/) for code linting
 - [Prettier](https://prettier.io) for code formatting
 - [Zod](https://zod.dev/) for runtime type validation
+- [Drizzle ORM](https://orm.drizzle.team/) for type-safe database access
+- [Drizzle Kit](https://orm.drizzle.team/kit-docs/overview) for schema migrations
 
 ## Getting Started
 
@@ -39,6 +42,7 @@ This Turborepo has the following tools setup:
 
 - Node.js (v18 or higher)
 - pnpm (recommended package manager)
+- PostgreSQL
 
 ### Installation
 
@@ -53,6 +57,7 @@ Create a `.env` file in the root directory with the following variables:
 
 ```env
 JWT_SECRET=your_secret_key_here
+DATABASE_URL=postgresql://user:password@localhost:5432/sketchify
 ```
 
 ## Development
@@ -105,6 +110,34 @@ turbo build --filter=web
 pnpm exec turbo build --filter=http-backend
 ```
 
+## Database
+
+The project uses [Drizzle ORM](https://orm.drizzle.team/) with PostgreSQL. The schema and client are defined in the `@repo/db` package.
+
+### Schema
+
+Defined in [`packages/db/src/schema.ts`](packages/db/src/schema.ts) with the following tables:
+
+- **user** — stores user accounts (email, password, name, image)
+- **room** — collaboration rooms linked to an admin user
+- **chat** — messages linked to a room and user
+
+Relations are defined using Drizzle's `relations()` API.
+
+### Migrations
+
+Use [Drizzle Kit](https://orm.drizzle.team/kit-docs/overview) to manage database migrations:
+
+```sh
+# Generate a migration from schema changes
+pnpm --filter @repo/db exec drizzle-kit generate
+
+# Apply migrations
+pnpm --filter @repo/db exec drizzle-kit push
+```
+
+The Drizzle Kit config is at [`packages/db/drizzle.config.ts`](packages/db/drizzle.config.ts).
+
 ## API Endpoints
 
 ### HTTP Backend (`http-backend`)
@@ -155,6 +188,7 @@ Learn more about the technologies used:
 - [Express.js Documentation](https://expressjs.com/)
 - [WebSocket Documentation](https://github.com/websockets/ws)
 - [Zod Documentation](https://zod.dev/)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)
 
 ## License
 
