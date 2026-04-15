@@ -5,9 +5,10 @@
   "main": "index.js",
   "type": "module",
   "exports": {
-    "./prisma": "./src/index.ts"
+    "./prisma": "./dist/src/index.js"
   },
   "scripts": {
+    "build": "tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
