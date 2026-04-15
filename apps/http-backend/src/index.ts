@@ -5,6 +5,7 @@ import { CreateUserSchema } from '@repo/common/types';
 import { prisma } from '@repo/db/prisma';
 
 const app = express();
+app.use(express.json());
 const port = 4020;
 
 const user = prisma.user;
@@ -12,6 +13,8 @@ const user = prisma.user;
 app.post('/api/signup', async (req, res) => {
   try {
     const data = CreateUserSchema.safeParse(req.body);
+
+    console.log(data);
 
     if (!data.success) {
       return res.status(400).json({
@@ -22,7 +25,7 @@ app.post('/api/signup', async (req, res) => {
 
     const { username, password, email, name } = data.data;
 
-    if (!username || !password || name || email) {
+    if (!username || !password || !name || !email) {
       return res.status(400).json({
         success: false,
         message: 'All Fields are required',
@@ -61,6 +64,7 @@ app.post('/api/signup', async (req, res) => {
       token,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
