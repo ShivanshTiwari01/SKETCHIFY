@@ -5,28 +5,61 @@ import { CreateUserSchema } from '@repo/common/types';
 import { prisma } from '@repo/db/prisma';
 
 const app = express();
-
 const port = 4020;
+
+const user = prisma.user;
 
 app.post('/api/signup', async (req, res) => {
   try {
     const data = CreateUserSchema.safeParse(req.body);
 
-    if (!data) {
+    if (!data.success) {
       return res.status(400).json({
         success: false,
         message: 'Invalid Inputs',
       });
     }
 
-    const { username, password, name } = data;
+    const { username, password, email, name } = data.data;
 
-    if (!username || !password) {
+    if (!username || !password || name || email) {
       return res.status(400).json({
         success: false,
-        message: 'Username and Password required',
+        message: 'All Fields are required',
       });
     }
+
+    const userExists = await user.findUnique({
+      where: {
+        username,
+        email,
+      },
+    });
+
+    if (userExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists, please login to continue',
+      });
+    }
+
+    const userCreated = await user.create({
+      data: {
+        username,
+        password,
+        email,
+        name,
+      },
+    });
+
+    const token = jwt.sign({ userId: userCreated.id }, JWT_SECRET);
+
+    return res.status(200).json({
+      success: true,
+      message: 'User created successfully',
+      data: userCreated,
+      token,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

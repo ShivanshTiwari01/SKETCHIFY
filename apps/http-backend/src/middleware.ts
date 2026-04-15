@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export const authenticationMiddleware = async (
   req: Request,
@@ -13,7 +13,7 @@ export const authenticationMiddleware = async (
     if (!token)
       return res.status(400).json({ success: false, message: 'Invalid Token' });
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
       if (err) return res.sendStatus(403);
       // @ts-ignore
       req.user = decoded;
