@@ -12,6 +12,7 @@ import { prisma } from '@repo/db/prisma';
 
 const user = prisma.user;
 const room = prisma.room;
+const chat = prisma.chat;
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -163,6 +164,34 @@ export const createRoom = async (req: Request, res: Response) => {
       success: false,
       message: 'Room created successfully',
       roomId: roomCreated.id,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+export const chats = async (req: Request, res: Response) => {
+  try {
+    const roomId = req.params.roomId as string;
+
+    const messages = await chat.findMany({
+      where: {
+        roomId: roomId,
+      },
+      orderBy: {
+        id: 'desc',
+      },
+      take: 50,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Messages fetched successfully',
+      messages,
     });
   } catch (error) {
     console.log(error);
