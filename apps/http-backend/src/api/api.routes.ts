@@ -10,4 +10,6 @@ router.post('/signin', controller.signin);
 
 router.post('/room', authenticationMiddleware, controller.createRoom);
 
+router.get('/chat/:roomId', controller.chats);
+
 export default router;
