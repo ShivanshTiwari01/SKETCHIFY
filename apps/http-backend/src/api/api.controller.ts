@@ -149,13 +149,13 @@ export const createRoom = async (req: Request, res: Response) => {
     const { name } = parsedData.data;
 
     // @ts-ignore
-    const userId = req.userId;
+    const user = req.user;
 
     const roomCreated = await room.create({
       data: {
         slug: name,
-        adminId: userId,
-        userId: userId,
+        adminId: user.userId,
+        userId: user.userId,
       },
     });
 
@@ -165,6 +165,7 @@ export const createRoom = async (req: Request, res: Response) => {
       roomId: roomCreated.id,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error',

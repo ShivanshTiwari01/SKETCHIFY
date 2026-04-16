@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JWT_SECRET } from '@repo/backend-common/config';
 
 export const authenticationMiddleware = async (
   req: Request,
@@ -13,7 +14,7 @@ export const authenticationMiddleware = async (
     if (!token)
       return res.status(400).json({ success: false, message: 'Invalid Token' });
 
-    jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
       if (err) return res.sendStatus(403);
       // @ts-ignore
       req.user = decoded;
