@@ -9,7 +9,7 @@ app.use((req, _res, next) => {
   next();
 });
 
-const port = 4020;
+const port = 4001;
 
 app.use('/api', router);
 
