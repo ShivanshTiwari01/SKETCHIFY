@@ -4,8 +4,8 @@
 
 **A real-time collaborative whiteboard — draw, design, and brainstorm together.**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![Turborepo](https://img.shields.io/badge/Turborepo-monorepo-EF4444?logo=turborepo&logoColor=white)](https://turbo.build/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
@@ -45,9 +45,9 @@ Sketchify is an open-source, real-time collaborative whiteboard inspired by [Exc
 ```
 sketchify/
 ├── apps/
-│   ├── web/              # Next.js frontend
-│   ├── http-backend/     # Express REST API  (port 4020)
-│   └── ws-backend/       # WebSocket server  (port 8080)
+│   ├── web/              # Next.js frontend       (port 4003)
+│   ├── http-backend/     # Express REST API      (port 4001)
+│   └── ws-backend/       # WebSocket server      (port 4002)
 └── packages/
     ├── db/               # Prisma schema & generated client (@repo/db)
     ├── common/           # Shared Zod schemas & TypeScript types (@repo/common)
@@ -116,9 +116,9 @@ sketchify/
 
    | Service   | URL                   |
    | --------- | --------------------- |
-   | Frontend  | http://localhost:3000 |
-   | HTTP API  | http://localhost:4020 |
-   | WebSocket | ws://localhost:8080   |
+   | Frontend  | http://localhost:4003 |
+   | HTTP API  | http://localhost:4001 |
+   | WebSocket | ws://localhost:4002   |
 
 ### Build for Production
 
@@ -143,7 +143,7 @@ pnpm build
 
 ### WebSocket
 
-Connect to `ws://localhost:8080?token=<JWT>` to join a room and receive real-time canvas events.
+Connect to `ws://localhost:4002?token=<JWT>` to join a room and receive real-time canvas events.
 
 ## Scripts
 

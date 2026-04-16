@@ -140,9 +140,9 @@ pnpm dev
 
 | Service   | Default URL           |
 | --------- | --------------------- |
-| Frontend  | http://localhost:3000 |
-| HTTP API  | http://localhost:4020 |
-| WebSocket | ws://localhost:8080   |
+| Frontend  | http://localhost:4003 |
+| HTTP API  | http://localhost:4001 |
+| WebSocket | ws://localhost:4002   |
 
 ---
 
