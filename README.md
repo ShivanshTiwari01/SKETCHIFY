@@ -1,56 +1,171 @@
-# Turborepo starter
+<div align="center">
 
-This Turborepo starter is maintained by the Turborepo core team.
+# ✏️ Sketchify
 
-## Using this example
+**A real-time collaborative whiteboard — draw, design, and brainstorm together.**
 
-Run the following command:
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![Turborepo](https://img.shields.io/badge/Turborepo-monorepo-EF4444?logo=turborepo&logoColor=white)](https://turbo.build/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-```sh
-npx create-turbo@latest
+</div>
+
+---
+
+## Overview
+
+Sketchify is an open-source, real-time collaborative whiteboard inspired by [Excalidraw](https://excalidraw.com/). Multiple users can join the same room and sketch, annotate, and brainstorm together — changes are broadcast instantly via WebSockets so every participant stays in sync.
+
+## Features
+
+- **Real-time collaboration** — WebSocket-powered live sync across all connected clients
+- **Room-based sessions** — create or join named rooms; each room has its own isolated canvas
+- **User authentication** — secure JWT-based signup & signin with bcrypt password hashing
+- **Persistent storage** — canvas state and chat messages saved to PostgreSQL via Prisma
+- **Monorepo architecture** — shared types, DB client, and UI components across all apps
+- **Fully typed** — end-to-end TypeScript with Zod schema validation
+
+## Tech Stack
+
+| Layer      | Technology                                                                        |
+| ---------- | --------------------------------------------------------------------------------- |
+| Frontend   | [Next.js 16](https://nextjs.org/)                                                 |
+| HTTP API   | [Express.js](https://expressjs.com/)                                              |
+| Real-time  | [ws](https://github.com/websockets/ws) (WebSocket)                                |
+| Database   | [PostgreSQL](https://www.postgresql.org/) + [Prisma ORM](https://www.prisma.io/)  |
+| Auth       | [JWT](https://jwt.io/) + [bcrypt](https://github.com/kelektiv/node.bcrypt.js)     |
+| Validation | [Zod](https://zod.dev/)                                                           |
+| Monorepo   | [Turborepo](https://turbo.build/) + [pnpm Workspaces](https://pnpm.io/workspaces) |
+| Language   | [TypeScript](https://www.typescriptlang.org/)                                     |
+
+## Project Structure
+
+```
+sketchify/
+├── apps/
+│   ├── web/              # Next.js frontend
+│   ├── http-backend/     # Express REST API  (port 4020)
+│   └── ws-backend/       # WebSocket server  (port 8080)
+└── packages/
+    ├── db/               # Prisma schema & generated client (@repo/db)
+    ├── common/           # Shared Zod schemas & TypeScript types (@repo/common)
+    ├── backend-common/   # Shared backend config & utilities (@repo/backend-common)
+    ├── ui/               # Shared React component library (@repo/ui)
+    ├── eslint-config/    # Shared ESLint configurations
+    └── typescript-config/ # Shared tsconfig bases
 ```
 
-## What's inside?
+## Getting Started
 
-This Turborepo includes the following packages/apps:
+### Prerequisites
 
-### Apps and Packages
+- [Node.js](https://nodejs.org/) >= 18
+- [pnpm](https://pnpm.io/) >= 10 — `npm install -g pnpm`
+- A running [PostgreSQL](https://www.postgresql.org/) instance
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Installation
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+1. **Clone the repository**
 
-### Utilities
+   ```sh
+   git clone https://github.com/your-username/sketchify.git
+   cd sketchify
+   ```
 
-This Turborepo has some additional tools already setup for you:
+2. **Install dependencies**
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+   ```sh
+   pnpm install
+   ```
 
-### Build
+3. **Configure environment variables**
 
-To build all apps and packages, run the following command:
+   Copy the example env files and fill in your values:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+   ```sh
+   # packages/db
+   cp packages/db/.env.example packages/db/.env
+
+   # apps/http-backend
+   cp apps/http-backend/.env.example apps/http-backend/.env
+
+   # apps/ws-backend
+   cp apps/ws-backend/.env.example apps/ws-backend/.env
+   ```
+
+   Minimum required variables:
+
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/sketchify"
+   JWT_SECRET="your-super-secret-key"
+   ```
+
+4. **Run database migrations**
+
+   ```sh
+   pnpm --filter @repo/db exec prisma migrate dev
+   ```
+
+5. **Start all services in development mode**
+
+   ```sh
+   pnpm dev
+   ```
+
+   | Service   | URL                   |
+   | --------- | --------------------- |
+   | Frontend  | http://localhost:3000 |
+   | HTTP API  | http://localhost:4020 |
+   | WebSocket | ws://localhost:8080   |
+
+### Build for Production
 
 ```sh
-cd my-turborepo
-turbo build
+pnpm build
 ```
 
-Without global `turbo`, use your package manager:
+## API Reference
 
-```sh
-cd my-turborepo
-npx turbo build
+### Authentication
+
+| Method | Endpoint      | Description               |
+| ------ | ------------- | ------------------------- |
+| `POST` | `/api/signup` | Register a new user       |
+| `POST` | `/api/signin` | Sign in and receive a JWT |
+
+### Rooms
+
+| Method | Endpoint    | Auth         | Description                  |
+| ------ | ----------- | ------------ | ---------------------------- |
+| `POST` | `/api/room` | Bearer token | Create a new whiteboard room |
+
+### WebSocket
+
+Connect to `ws://localhost:8080?token=<JWT>` to join a room and receive real-time canvas events.
+
+## Scripts
+
+| Command            | Description                    |
+| ------------------ | ------------------------------ |
+| `pnpm dev`         | Start all apps in watch mode   |
+| `pnpm build`       | Build all apps and packages    |
+| `pnpm lint`        | Lint all workspaces            |
+| `pnpm format`      | Format all files with Prettier |
+| `pnpm check-types` | Run TypeScript type checks     |
+
+## Contributing
+
+Contributions are welcome! Please read the [Contributing Guide](./CONTRIBUTING.md) before opening a pull request.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
 pnpm dlx turbo build
 pnpm exec turbo build
-```
+
+````
 
 You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
 
@@ -58,7 +173,7 @@ With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#gl
 
 ```sh
 turbo build --filter=docs
-```
+````
 
 Without global `turbo`:
 
