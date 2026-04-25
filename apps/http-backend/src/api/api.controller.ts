@@ -201,3 +201,27 @@ export const chats = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const slug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+
+    const roomm = await room.findFirst({
+      where: {
+        slug: slug as string,
+      },
+    });
+
+    return res.status(200).json({
+      success: false,
+      message: 'room found successfully',
+      data: roomm,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
