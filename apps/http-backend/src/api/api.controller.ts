@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 import { JWT_SECRET } from '@repo/backend-common/config';
@@ -17,8 +17,6 @@ const chat = prisma.chat;
 export const signup = async (req: Request, res: Response) => {
   try {
     const data = CreateUserSchema.safeParse(req.body);
-
-    console.log(data);
 
     if (!data.success) {
       return res.status(400).json({
@@ -149,7 +147,6 @@ export const createRoom = async (req: Request, res: Response) => {
 
     const { name } = parsedData.data;
 
-    // @ts-ignore
     const user = req.user;
 
     const roomCreated = await room.create({
