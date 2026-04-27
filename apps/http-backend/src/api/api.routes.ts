@@ -10,8 +10,8 @@ router.post('/signin', controller.signin);
 
 router.post('/room', authenticationMiddleware, controller.createRoom);
 
-router.get('/chat/:roomId', controller.chats);
+router.get('/chat/:roomId', authenticationMiddleware, controller.chats);
 
-router.get('/room/:slug', controller.slug);
+router.get('/room/:slug', authenticationMiddleware, controller.slug);
 
 export default router;
