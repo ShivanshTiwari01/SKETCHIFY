@@ -16,8 +16,9 @@ export const authenticationMiddleware = async (
 
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
       if (err) return res.sendStatus(403);
-      // @ts-ignore
-      req.user = decoded;
+
+      req.user = decoded as { userId: string };
+
       next();
     });
   } catch (error) {
