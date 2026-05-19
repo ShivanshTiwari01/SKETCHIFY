@@ -147,7 +147,7 @@ export const createRoom = async (req: Request, res: Response) => {
 
     const { name } = parsedData.data;
 
-    const user = req.user;
+    const user: any = req.user;
 
     const roomCreated = await room.create({
       data: {
