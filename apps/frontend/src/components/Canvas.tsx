@@ -39,6 +39,12 @@ export default function Canvas({ roomId, onBack }: CanvasProps) {
   const stageRef = useRef<Konva.Stage>(null);
   const [connected, setConnected] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  const shapesRef = useRef<Shape[]>([]);
+  const historyRef = useRef<Shape[][]>([]);
+  const futureRef = useRef<Shape[][]>([]);
+  const preDrawSnapshot = useRef<Shape[]>([]);
 
   // Resize canvas to fill container
   useEffect(() => {
@@ -52,6 +58,11 @@ export default function Canvas({ roomId, onBack }: CanvasProps) {
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
+
+  // Keep shapesRef in sync so history callbacks always see current shapes
+  useEffect(() => {
+    shapesRef.current = shapes;
+  }, [shapes]);
 
   // Load existing shapes from chat history
   useEffect(() => {
@@ -144,6 +155,7 @@ export default function Canvas({ roomId, onBack }: CanvasProps) {
     if (tool === 'select') return;
     isDrawing.current = true;
     startPos.current = { x, y };
+    preDrawSnapshot.current = [...shapesRef.current];
     const id = genId();
     activeShapeId.current = id;
     let newShape: Shape;
@@ -272,6 +284,10 @@ export default function Canvas({ roomId, onBack }: CanvasProps) {
 
         if (hasSize) {
           sendShape(shape);
+          historyRef.current.push(preDrawSnapshot.current);
+          futureRef.current = [];
+          setCanUndo(true);
+          setCanRedo(false);
         } else {
           // Remove tiny accidental shapes
           return prev.filter((s) => s.id !== id);
@@ -282,8 +298,49 @@ export default function Canvas({ roomId, onBack }: CanvasProps) {
   };
 
   const handleClear = () => {
+    if (shapesRef.current.length === 0) return;
+    historyRef.current.push([...shapesRef.current]);
+    futureRef.current = [];
     setShapes([]);
+    setCanUndo(true);
+    setCanRedo(false);
   };
+
+  const handleUndo = useCallback(() => {
+    if (historyRef.current.length === 0) return;
+    const prevState = historyRef.current.pop()!;
+    futureRef.current.push([...shapesRef.current]);
+    setShapes(prevState);
+    setCanUndo(historyRef.current.length > 0);
+    setCanRedo(true);
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    if (futureRef.current.length === 0) return;
+    const nextState = futureRef.current.pop()!;
+    historyRef.current.push([...shapesRef.current]);
+    setShapes(nextState);
+    setCanUndo(true);
+    setCanRedo(futureRef.current.length > 0);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      } else if (
+        e.ctrlKey &&
+        (e.key === 'y' || (e.shiftKey && e.key === 'z'))
+      ) {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleUndo, handleRedo]);
 
   const renderShape = (shape: Shape) => {
     const commonProps = {
@@ -487,6 +544,22 @@ export default function Canvas({ roomId, onBack }: CanvasProps) {
             />
             {connected ? 'Live' : 'Offline'}
           </span>
+          <button
+            onClick={handleUndo}
+            disabled={!canUndo}
+            title='Undo (Ctrl+Z)'
+            className='text-xs text-[#666] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-3 py-1.5 rounded-lg border border-[#2e2e2e] hover:border-[#444] disabled:hover:text-[#666] disabled:hover:border-[#2e2e2e]'
+          >
+            ↩
+          </button>
+          <button
+            onClick={handleRedo}
+            disabled={!canRedo}
+            title='Redo (Ctrl+Y)'
+            className='text-xs text-[#666] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-3 py-1.5 rounded-lg border border-[#2e2e2e] hover:border-[#444] disabled:hover:text-[#666] disabled:hover:border-[#2e2e2e]'
+          >
+            ↪
+          </button>
           <button
             onClick={handleClear}
             className='text-xs text-[#666] hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg border border-[#2e2e2e] hover:border-red-400/30'
